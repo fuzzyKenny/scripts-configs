@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+backup_dir="$HOME/.config-backups/$(date +%Y%m%d%H%M%S)"
+
+link_file() {
+  local src="$1" dst="$2"
+
+  if [[ ! -e "$src" ]]; then
+    printf 'missing source: %s\n' "$src" >&2
+    return 1
+  fi
+
+  install -d "$(dirname "$dst")"
+
+  if [[ -L "$dst" && "$(readlink "$dst")" == "$src" ]]; then
+    printf 'already linked: %s -> %s\n' "$dst" "$src"
+    return 0
+  fi
+
+  if [[ -e "$dst" || -L "$dst" ]]; then
+    install -d "$backup_dir$(dirname "$dst")"
+    mv "$dst" "$backup_dir$dst"
+    printf 'backed up: %s -> %s\n' "$dst" "$backup_dir$dst"
+  fi
+
+  ln -s "$src" "$dst"
+  printf 'linked: %s -> %s\n' "$dst" "$src"
+}
+
+link_file "$repo/scripts/bin/wallhaven-download.py" "$HOME/bin/wallhaven-download.py"
+link_file "$repo/configs/home/zshrc" "$HOME/.zshrc"
+link_file "$repo/configs/git/gitconfig" "$HOME/.gitconfig"
+link_file "$repo/configs/starship/starship.toml" "$HOME/.config/starship.toml"
+link_file "$repo/configs/ghostty/config" "$HOME/.config/ghostty/config"
+link_file "$repo/configs/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
+link_file "$repo/configs/opencode/package.json" "$HOME/.config/opencode/package.json"
+link_file "$repo/configs/opencode/package-lock.json" "$HOME/.config/opencode/package-lock.json"
+link_file "$repo/configs/opencode/gitignore" "$HOME/.config/opencode/.gitignore"
+link_file "$repo/configs/zed/settings.json" "$HOME/.config/zed/settings.json"
+
+chmod +x "$repo/scripts/bin/wallhaven-download.py"

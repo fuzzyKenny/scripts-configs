@@ -1,0 +1,88 @@
+add_newline = false
+command_timeout = 1000
+
+format = "$directory$nodejs$bun$deno$python$rust$golang$java$php$ruby$docker_context$git_branch$git_status$git_state$git_metrics$cmd_duration$character"
+
+[directory]
+style = "bold cyan"
+truncation_length = 4
+truncate_to_repo = false
+read_only = " ro"
+
+[git_branch]
+format = " on [$branch]($style)"
+style = "bold purple"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style))"
+style = "bold yellow"
+conflicted = " ="
+ahead = " +${count}"
+behind = " -${count}"
+diverged = " +/-"
+up_to_date = ""
+untracked = " ?${count}"
+stashed = " $${count}"
+modified = " !${count}"
+staged = " +${count}"
+renamed = " >${count}"
+deleted = " x${count}"
+
+[git_state]
+format = " [$state( $progress_current/$progress_total)]($style)"
+style = "bold red"
+
+[git_metrics]
+disabled = false
+format = " ([+$added]($added_style) [-$deleted]($deleted_style))"
+added_style = "green"
+deleted_style = "red"
+
+[nodejs]
+format = "[$symbol](green)"
+symbol = ""
+
+[bun]
+format = "[$symbol](bold red)"
+symbol = ""
+
+[deno]
+format = "[$symbol](green)"
+symbol = ""
+
+[python]
+format = "[$symbol](yellow)"
+symbol = ""
+
+[rust]
+format = "[$symbol](red)"
+symbol = ""
+
+[golang]
+format = "[$symbol](cyan)"
+symbol = ""
+
+[java]
+format = "[$symbol](red)"
+symbol = ""
+
+[php]
+format = "[$symbol](purple)"
+symbol = ""
+
+[ruby]
+format = "[$symbol](red)"
+symbol = ""
+
+[docker_context]
+format = "[$symbol](blue)"
+symbol = ""
+
+[cmd_duration]
+min_time = 750
+format = " [${duration}](dimmed white)"
+
+[character]
+success_symbol = "[❯](bold cyan)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold cyan)"

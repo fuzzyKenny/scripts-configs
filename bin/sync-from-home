@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+install -d \
+  "$repo/scripts/bin" \
+  "$repo/configs/home" \
+  "$repo/configs/git" \
+  "$repo/configs/starship" \
+  "$repo/configs/ghostty" \
+  "$repo/configs/opencode" \
+  "$repo/configs/zed"
+
+copy_if_exists() {
+  local src="$1" dst="$2"
+  if [[ -e "$src" ]]; then
+    cp "$src" "$dst"
+  else
+    printf 'skip missing: %s\n' "$src" >&2
+  fi
+}
+
+copy_if_exists "$HOME/bin/wallhaven-download.py" "$repo/scripts/bin/wallhaven-download.py"
+copy_if_exists "$HOME/.zshrc" "$repo/configs/home/zshrc"
+copy_if_exists "$HOME/.gitconfig" "$repo/configs/git/gitconfig"
+copy_if_exists "$HOME/.config/starship.toml" "$repo/configs/starship/starship.toml"
+copy_if_exists "$HOME/.config/ghostty/config" "$repo/configs/ghostty/config"
+copy_if_exists "$HOME/.config/opencode/opencode.jsonc" "$repo/configs/opencode/opencode.jsonc"
+copy_if_exists "$HOME/.config/opencode/package.json" "$repo/configs/opencode/package.json"
+copy_if_exists "$HOME/.config/opencode/package-lock.json" "$repo/configs/opencode/package-lock.json"
+copy_if_exists "$HOME/.config/opencode/.gitignore" "$repo/configs/opencode/gitignore"
+copy_if_exists "$HOME/.config/zed/settings.json" "$repo/configs/zed/settings.json"
+chmod +x "$repo/scripts/bin/wallhaven-download.py" 2>/dev/null || true

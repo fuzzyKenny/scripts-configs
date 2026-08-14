@@ -1,0 +1,219 @@
+# Coding-focused zsh setup
+
+[[ $- != *i* ]] && return
+
+# -----------------------------------------------------------------------------
+# History
+# -----------------------------------------------------------------------------
+
+HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000
+
+setopt append_history
+setopt share_history
+setopt inc_append_history
+setopt extended_history
+setopt hist_expire_dups_first
+setopt hist_find_no_dups
+setopt hist_ignore_all_dups
+setopt hist_ignore_space
+setopt hist_reduce_blanks
+setopt hist_save_no_dups
+
+# -----------------------------------------------------------------------------
+# Shell behavior
+# -----------------------------------------------------------------------------
+
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt pushd_silent
+setopt interactive_comments
+setopt no_beep
+setopt prompt_subst
+setopt correct
+unsetopt flow_control
+
+# -----------------------------------------------------------------------------
+# Utilities
+# -----------------------------------------------------------------------------
+
+path_prepend() {
+  [[ -d "$1" ]] || return
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1:$PATH" ;;
+  esac
+}
+
+mkcd() {
+  [[ -n "$1" ]] || { print -u2 'mkcd: missing directory'; return 1; }
+  mkdir -p -- "$1" && cd -- "$1"
+}
+
+gck() {
+  [[ -n "$1" ]] || { print -u2 'gck: missing repo'; return 1; }
+  git clone "git@github.com:fuzzyKenny/$1.git"
+}
+
+# -----------------------------------------------------------------------------
+# Environment
+# -----------------------------------------------------------------------------
+
+path_prepend "$HOME/bin"
+path_prepend "$HOME/.local/bin"
+path_prepend "$HOME/.bun/bin"
+export PATH
+
+export EDITOR="${EDITOR:-vim}"
+export VISUAL="${VISUAL:-$EDITOR}"
+export PAGER="${PAGER:-less}"
+export LESS="-R"
+export BUN_INSTALL="$HOME/.bun"
+
+# -----------------------------------------------------------------------------
+# Homebrew
+# -----------------------------------------------------------------------------
+
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+autoload -Uz compinit
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+zstyle ':completion:*:warnings' format '%F{red}-- no matches --%f'
+[[ -n "$LS_COLORS" ]] && zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+zcompdump="${ZDOTDIR:-$HOME}/.zcompdump-${ZSH_VERSION}"
+if [[ ! -f "$zcompdump" || "$zcompdump" -ot ~/.zshrc ]]; then
+  compinit -d "$zcompdump"
+else
+  compinit -C -d "$zcompdump"
+fi
+unset zcompdump
+
+# -----------------------------------------------------------------------------
+# Key bindings
+# -----------------------------------------------------------------------------
+
+bindkey -e
+bindkey '^[[A' history-substring-search-up 2>/dev/null || true
+bindkey '^[[B' history-substring-search-down 2>/dev/null || true
+bindkey '^[[H' beginning-of-line 2>/dev/null || true
+bindkey '^[[F' end-of-line 2>/dev/null || true
+
+# -----------------------------------------------------------------------------
+# General aliases
+# -----------------------------------------------------------------------------
+
+alias grep='grep --color=auto'
+alias mkdir='mkdir -p'
+alias path='print -l ${(s.:.)PATH}'
+alias reload='source ~/.zshrc'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# -----------------------------------------------------------------------------
+# Listing aliases
+# -----------------------------------------------------------------------------
+
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza -1 --icons=auto --group-directories-first'
+  alias ll='eza --long --all --header --git --icons=auto --group-directories-first'
+  alias la='eza --all --icons=auto --group-directories-first'
+  alias lt='eza --tree --level=2 --icons=auto --group-directories-first'
+  alias lso='command ls'
+else
+  alias ls='ls -G'
+  alias ll='ls -lah'
+  alias la='ls -A'
+fi
+
+# -----------------------------------------------------------------------------
+# Git aliases
+# -----------------------------------------------------------------------------
+
+alias g='git'
+alias gs='git status --short --branch'
+alias gst='git status'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gca='git commit --amend'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git pull'
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gb='git branch'
+alias gco='git checkout'
+alias gsw='git switch'
+alias gcb='git switch -c'
+alias glog='git log --oneline --decorate --graph --all -20'
+
+# -----------------------------------------------------------------------------
+# App aliases
+# -----------------------------------------------------------------------------
+
+command -v opencode >/dev/null 2>&1 && alias oc='opencode'
+
+# -----------------------------------------------------------------------------
+# Prompt
+# -----------------------------------------------------------------------------
+
+if [[ "$TERM" != "dumb" ]] && command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+else
+  PROMPT='%F{cyan}%~%f %F{yellow}$(git branch --show-current 2>/dev/null)%f %# '
+fi
+
+# -----------------------------------------------------------------------------
+# Plugins
+# -----------------------------------------------------------------------------
+
+for plugin in \
+  /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh; do
+  if [[ -r "$plugin" ]]; then
+    source "$plugin"
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+    break
+  fi
+done
+unset plugin
+
+for plugin in \
+  /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  if [[ -r "$plugin" ]]; then
+    source "$plugin"
+    break
+  fi
+done
+unset plugin
+
+# -----------------------------------------------------------------------------
+# Bun
+# -----------------------------------------------------------------------------
+
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
+# -----------------------------------------------------------------------------
+# Local config
+# -----------------------------------------------------------------------------
+
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
