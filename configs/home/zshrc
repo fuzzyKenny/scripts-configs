@@ -117,8 +117,6 @@ unset zcompdump
 # -----------------------------------------------------------------------------
 
 bindkey -e
-bindkey '^[[A' history-substring-search-up 2>/dev/null || true
-bindkey '^[[B' history-substring-search-down 2>/dev/null || true
 bindkey '^[[H' beginning-of-line 2>/dev/null || true
 bindkey '^[[F' end-of-line 2>/dev/null || true
 
@@ -213,6 +211,27 @@ for plugin in \
   fi
 done
 unset plugin
+
+for plugin in \
+  /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh \
+  /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh; do
+  if [[ -r "$plugin" ]]; then
+    source "$plugin"
+    break
+  fi
+done
+unset plugin
+
+if (( $+widgets[history-substring-search-up] )); then
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
+else
+  autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+  zle -N up-line-or-beginning-search
+  zle -N down-line-or-beginning-search
+  bindkey '^[[A' up-line-or-beginning-search
+  bindkey '^[[B' down-line-or-beginning-search
+fi
 
 # -----------------------------------------------------------------------------
 # Bun
