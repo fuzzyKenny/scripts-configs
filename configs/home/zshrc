@@ -54,12 +54,20 @@ mkcd() {
 
 gck() {
   [[ -n "$1" ]] || { print -u2 'gck: missing repo'; return 1; }
-  git clone "git@github.com:fuzzyKenny/$1.git"
+  [[ -n "${GITHUB_USER:-}" ]] || { print -u2 'gck: set GITHUB_USER in ~/.env'; return 1; }
+  git clone "git@github.com:${GITHUB_USER}/$1.git"
 }
 
 # -----------------------------------------------------------------------------
 # Environment
 # -----------------------------------------------------------------------------
+
+# Local-only private values; keep this file out of git.
+if [[ -r "$HOME/.env" ]]; then
+  set -a
+  source "$HOME/.env"
+  set +a
+fi
 
 path_prepend "$HOME/bin"
 path_prepend "$HOME/.local/bin"

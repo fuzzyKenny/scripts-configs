@@ -1,3 +1,2 @@
-[user]
-	name = Kenny
-	email = kritiraj.tech@gmail.com
+# Personal identity is provided by ~/.env via GIT_AUTHOR_* and GIT_COMMITTER_*.
+# Keep names, emails, signing keys, and tokens out of this public config.

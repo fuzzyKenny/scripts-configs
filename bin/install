@@ -29,6 +29,10 @@ link_file() {
   printf 'linked: %s -> %s\n' "$dst" "$src"
 }
 
+if [[ -e "$repo/.env" ]]; then
+  link_file "$repo/.env" "$HOME/.env"
+fi
+
 link_file "$repo/scripts/bin/wallhaven-download.py" "$HOME/bin/wallhaven-download.py"
 link_file "$repo/configs/home/zshrc" "$HOME/.zshrc"
 link_file "$repo/configs/git/gitconfig" "$HOME/.gitconfig"
