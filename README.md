@@ -37,7 +37,7 @@ The Zsh config sources `~/.env` automatically for interactive shells.
 ## Install
 
 ```sh
-git clone git@github.com:YOUR_USER/YOUR_REPO.git ~/scripts-configs
+git clone git@github.com:fuzzyKenny/scripts-configs.git ~/scripts-configs
 cd ~/scripts-configs
 ./bin/install
 ```
